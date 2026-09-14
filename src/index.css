@@ -1,0 +1,228 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Wayfinder — neon glass.
+
+   Dark is the primary world: deep violet-black ground, translucent panels with
+   luminous edges, cyan and magenta as the two light sources. Light mode is a
+   clean bright counterpart on the same hues, minus the glow (neon on white
+   reads as mud).
+
+   Every colour is defined on bare :root (light), then redefined in BOTH the
+   prefers-color-scheme block (guarded so an explicit light choice wins) and the
+   [data-theme="dark"] block. Nothing is declared only inside a media query.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Light: bright, cool, violet-tinted — not plain white */
+  --ground: #f4f3fb;
+  --ground-2: #eae8f7;
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel-solid: #ffffff;
+  --panel-border: rgba(99, 91, 168, 0.18);
+
+  --ink: #16142b;
+  --ink-muted: #55507a;
+  --ink-faint: #8b86ad;
+
+  --accent: #5b4bdb;          /* violet — primary action */
+  --accent-2: #0d8fb8;        /* cyan — secondary light source */
+  --accent-quiet: rgba(91, 75, 219, 0.1);
+  --on-accent: #ffffff;
+
+  --geo: #0d8fb8;
+  --geo-quiet: rgba(13, 143, 184, 0.12);
+
+  --open: #17795a;
+  --closed: #b53f3f;
+
+  /* Glow is inert in light mode — the tokens exist so components stay uniform */
+  --glow-accent: 0 0 0 rgba(0, 0, 0, 0);
+  --glow-cyan: 0 0 0 rgba(0, 0, 0, 0);
+  --glow-panel: 0 1px 3px rgba(22, 20, 43, 0.08), 0 8px 24px rgba(22, 20, 43, 0.06);
+  --panel-blur: 12px;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  color-scheme: light;
+}
+
+:root:not([data-theme='light']) {
+  @media (prefers-color-scheme: dark) {
+    --ground: #0a0718;
+    --ground-2: #140b2e;
+    --panel: rgba(30, 22, 64, 0.55);
+    --panel-solid: #1a1236;
+    --panel-border: rgba(139, 122, 255, 0.28);
+
+    --ink: #f0edff;
+    --ink-muted: #b3abd9;
+    --ink-faint: #7d75a8;
+
+    --accent: #8b7aff;
+    --accent-2: #3ddbf0;
+    --accent-quiet: rgba(139, 122, 255, 0.16);
+    --on-accent: #0a0718;
+
+    --geo: #3ddbf0;
+    --geo-quiet: rgba(61, 219, 240, 0.14);
+
+    --open: #48e0a0;
+    --closed: #ff7a8a;
+
+    --glow-accent: 0 0 20px rgba(139, 122, 255, 0.45);
+    --glow-cyan: 0 0 20px rgba(61, 219, 240, 0.4);
+    --glow-panel:
+      0 0 0 1px rgba(139, 122, 255, 0.12),
+      0 8px 32px rgba(10, 7, 24, 0.6),
+      0 0 40px rgba(139, 122, 255, 0.08);
+    --panel-blur: 16px;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ground: #0a0718;
+  --ground-2: #140b2e;
+  --panel: rgba(30, 22, 64, 0.55);
+  --panel-solid: #1a1236;
+  --panel-border: rgba(139, 122, 255, 0.28);
+
+  --ink: #f0edff;
+  --ink-muted: #b3abd9;
+  --ink-faint: #7d75a8;
+
+  --accent: #8b7aff;
+  --accent-2: #3ddbf0;
+  --accent-quiet: rgba(139, 122, 255, 0.16);
+  --on-accent: #0a0718;
+
+  --geo: #3ddbf0;
+  --geo-quiet: rgba(61, 219, 240, 0.14);
+
+  --open: #48e0a0;
+  --closed: #ff7a8a;
+
+  --glow-accent: 0 0 20px rgba(139, 122, 255, 0.45);
+  --glow-cyan: 0 0 20px rgba(61, 219, 240, 0.4);
+  --glow-panel:
+    0 0 0 1px rgba(139, 122, 255, 0.12),
+    0 8px 32px rgba(10, 7, 24, 0.6),
+    0 0 40px rgba(139, 122, 255, 0.08);
+  --panel-blur: 16px;
+
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* Explicit ground — a transparent body borrows the host's theme. */
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Ambient light sources. Two slow-drifting orbs — the whole background effect,
+   built from gradients rather than images so it costs nothing to ship. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 18%, var(--accent-quiet) 0%, transparent 45%),
+    radial-gradient(circle at 78% 72%, var(--geo-quiet) 0%, transparent 45%),
+    radial-gradient(circle at 60% 8%, var(--accent-quiet) 0%, transparent 38%);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+/* Constellation mesh, visible only in dark where it reads as depth. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    linear-gradient(var(--panel-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--panel-border) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, #000 0%, transparent 75%);
+}
+
+:root:not([data-theme='light']) {
+  @media (prefers-color-scheme: dark) {
+    body::after {
+      opacity: 0.35;
+    }
+  }
+}
+:root[data-theme='dark'] body::after {
+  opacity: 0.35;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, -2%, 0) scale(1.08);
+  }
+}
+
+/* Frosted panel — the core surface treatment. */
+.glass {
+  background: var(--panel);
+  backdrop-filter: blur(var(--panel-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(140%);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--glow-panel);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-border) transparent;
+}
+.thin-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--panel-border);
+  border-radius: 99px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
