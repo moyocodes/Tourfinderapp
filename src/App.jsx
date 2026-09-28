@@ -315,7 +315,7 @@ function Header({ location, locating, onLocate, wallpaper, onMenu }) {
             className="text-[17px] leading-none tracking-tight"
             style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--ink)' }}
           >
-            Wayfinder
+            TourFinderApp
           </h1>
           <span
             className="mt-0.5 hidden text-[9px] tracking-[0.16em] uppercase sm:inline"

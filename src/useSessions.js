@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-const KEY = 'wayfinder-sessions'
+const KEY = 'tourfinderapp-sessions'
 const MAX_SESSIONS = 50
 
 /**

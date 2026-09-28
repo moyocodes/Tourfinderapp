@@ -1,6 +1,6 @@
-# Wayfinder — web frontend
+# TourFinderApp — web frontend
 
-The chat UI for **Wayfinder**, a world tourism chatbot. Talks to the FastAPI
+The chat UI for **TourFinderApp**, a world tourism chatbot. Talks to the FastAPI
 backend (separate repo: `Mobot`).
 
 Vite + React 19 + Tailwind 4. Neon-glass visual identity with light / dark /

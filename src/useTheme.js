@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const KEY = 'wayfinder-theme'
+const KEY = 'tourfinderapp-theme'
 
 /**
  * Theme control with three states: 'system' (default), 'light', 'dark'.

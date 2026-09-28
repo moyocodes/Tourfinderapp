@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { DEFAULT_WALLPAPER, WALLPAPERS } from './wallpapers'
 
-const KEY = 'wayfinder-wallpaper'
-const CUSTOM_KEY = 'wayfinder-wallpaper-custom'
+const KEY = 'tourfinderapp-wallpaper'
+const CUSTOM_KEY = 'tourfinderapp-wallpaper-custom'
 
 /**
  * Background choice, persisted per-viewer.
