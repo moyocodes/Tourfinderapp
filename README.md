@@ -1,7 +1,7 @@
 # TourFinderApp — web frontend
 
-The chat UI for **TourFinderApp**, a world tourism chatbot. Talks to the FastAPI
-backend (separate repo: `Mobot`).
+The chat UI for **TourFinderApp**, a world tourism chatbot. Talks to a private
+FastAPI backend (closed-source; see **Backend**, below, for what it does).
 
 Vite + React 19 + Tailwind 4. Neon-glass visual identity with light / dark /
 system themes and a swappable background.
@@ -19,6 +19,36 @@ system themes and a swappable background.
 - **Themes** — light / dark / follow-system, toggled in the header
 - **Backgrounds** — six CSS-generated wallpapers plus "paste any image URL",
   chosen from the palette menu; persists per device
+
+## Backend
+
+The backend is a private Python/FastAPI service (not open-sourced) that this
+frontend talks to over `POST /chat` and a few supporting endpoints. What it
+does:
+
+- **Hybrid LLM routing** — a self-hosted fine-tuned model (served via
+  [Ollama](https://ollama.com)) answers straightforward questions for free;
+  anything safety-critical, time-sensitive, place-lookup-dependent, or a
+  follow-up turn routes to Claude (Anthropic) instead. Keeps cost-per-conversation
+  low without sacrificing answer quality on hard questions.
+- **Claude tool-use loop** — Claude decides when to call a place-search tool
+  (OpenStreetMap by default, no API key required) or a web-search fallback for
+  things like live events or safety advisories.
+- **Real place data, free by default** — search runs on OpenStreetMap
+  (Nominatim); can optionally switch to Google Places for richer data
+  (ratings, hours, photos) if configured with billing.
+- **Location without a permission prompt** — country is guessed silently from
+  request IP on page load; the user can opt into precise city-level location.
+- **Persistent conversations** — sessions are written to disk, so a backend
+  restart doesn't lose context mid-chat.
+- **Free-plan usage metering** — tracks daily message counts per client and
+  exposes them to this frontend via `GET /usage`.
+- **Training-data logging** — every Claude-answered interaction is logged,
+  feeding future fine-tunes of the local model.
+
+Deployed on [Render](https://render.com), chosen over serverless platforms
+because it needs a real persistent filesystem for session history and
+training-data logs.
 
 ## Running it
 
@@ -82,5 +112,5 @@ the Vite preset and the SPA rewrite).
 4. Deploy. Every push to the default branch ships to production; PRs get
    preview URLs.
 
-After the backend is live, add this frontend's URL to the backend's
-`CORS_ORIGINS` (see the `Mobot` repo).
+After the backend is live, its `CORS_ORIGINS` config needs this frontend's URL
+added (backend repo is private).
