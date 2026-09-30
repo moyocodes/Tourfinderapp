@@ -105,12 +105,18 @@ the Vite preset and the SPA rewrite).
 
    | Name | Value |
    |------|-------|
-   | `VITE_API_BASE_URL` | `https://<your-render-service>.onrender.com` |
+   | `VITE_API_BASE_URL` | `https://tourfinderapppython.onrender.com` |
 
    No trailing slash. This is baked in at build time, so **redeploy after
    changing it**.
 4. Deploy. Every push to the default branch ships to production; PRs get
    preview URLs.
 
-After the backend is live, its `CORS_ORIGINS` config needs this frontend's URL
-added (backend repo is private).
+The backend is deployed on Render at `https://tourfinderapppython.onrender.com`
+(free tier — the first request after 15 min idle takes ~30–60s to wake). Its
+`CORS_ORIGINS` must include this frontend's URL (currently `https://tourfinder.app`).
+
+Traffic is tracked with [Vercel Web Analytics](https://vercel.com/docs/analytics):
+the `<Analytics />` component is mounted in [`src/main.jsx`](src/main.jsx). Enable
+it once under the project's **Analytics** tab in Vercel; it only reports from
+deployed builds, not localhost.
