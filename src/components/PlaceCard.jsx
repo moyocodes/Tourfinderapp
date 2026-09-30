@@ -33,7 +33,7 @@ export default function PlaceCard({ place }) {
 
   return (
     <a
-      href={place.maps_uri || undefined}
+      href={place.google_maps_url || place.maps_uri || undefined}
       target="_blank"
       rel="noreferrer"
       className="glass group flex w-[248px] shrink-0 snap-start flex-col overflow-hidden no-underline transition-transform duration-200 hover:-translate-y-1"

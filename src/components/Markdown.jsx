@@ -7,21 +7,36 @@
  * is a real React element, so there's no dangerouslySetInnerHTML anywhere.
  */
 
-/** Split a line into text and **bold** runs. */
+/** Split a line into text, **bold** and [label](https://url) runs. */
 function inline(text, keyPrefix) {
   const parts = []
-  const re = /\*\*(.+?)\*\*/g
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g
   let last = 0
   let match
   let i = 0
 
   while ((match = re.exec(text)) !== null) {
     if (match.index > last) parts.push(text.slice(last, match.index))
-    parts.push(
-      <strong key={`${keyPrefix}-b${i++}`} style={{ color: 'var(--ink)', fontWeight: 600 }}>
-        {match[1]}
-      </strong>,
-    )
+    if (match[3]) {
+      // Only http(s) URLs match the regex, so no javascript: links get through.
+      parts.push(
+        <a
+          key={`${keyPrefix}-a${i++}`}
+          href={match[3]}
+          target="_blank"
+          rel="noreferrer noopener"
+          style={{ color: 'var(--accent)', textDecoration: 'underline' }}
+        >
+          {match[2]}
+        </a>,
+      )
+    } else {
+      parts.push(
+        <strong key={`${keyPrefix}-b${i++}`} style={{ color: 'var(--ink)', fontWeight: 600 }}>
+          {match[1]}
+        </strong>,
+      )
+    }
     last = match.index + match[0].length
   }
   if (last < text.length) parts.push(text.slice(last))
