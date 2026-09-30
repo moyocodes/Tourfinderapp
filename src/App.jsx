@@ -144,6 +144,7 @@ export default function App() {
           text: res.reply,
           sources: res.sources ?? [],
           places: res.places ?? [],
+          options: res.options ?? [],
           intent: res.intent ?? null,
           answeredBy: res.answered_by ?? 'claude',
         },
@@ -223,7 +224,13 @@ export default function App() {
             >
               <div className="flex flex-col gap-6">
                 {messages.map((msg, i) => (
-                  <Message key={i} msg={msg} />
+                  <Message
+                    key={i}
+                    msg={msg}
+                    // Tap choices only make sense on the newest reply, and only
+                    // while we're not already waiting on an answer.
+                    onPick={i === messages.length - 1 && !loading ? submit : null}
+                  />
                 ))}
 
                 {loading && <Thinking />}
@@ -475,7 +482,7 @@ function Pin() {
   )
 }
 
-function Message({ msg }) {
+function Message({ msg, onPick }) {
   if (msg.role === 'user') {
     return (
       <div className="flex justify-end">
@@ -541,6 +548,19 @@ function Message({ msg }) {
       </div>
 
       {msg.places?.length > 0 && <PlaceRail places={msg.places} />}
+
+      {onPick && msg.options?.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <Label>Choose one</Label>
+          <div className="flex flex-wrap gap-2">
+            {msg.options.map((o) => (
+              <SuggestionChip key={o} onClick={() => onPick(o)}>
+                {o}
+              </SuggestionChip>
+            ))}
+          </div>
+        </div>
+      )}
 
       {msg.sources?.length > 0 && msg.places?.length === 0 && (
         <div className="flex flex-col gap-1.5">

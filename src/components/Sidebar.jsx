@@ -187,6 +187,19 @@ export default function Sidebar({
           style={{ borderTop: '1px solid var(--panel-border)' }}
         >
           <PlanPanel usage={usage} />
+          <p
+            className="text-[10.5px] leading-snug"
+            style={{ color: 'var(--ink-faint)' }}
+          >
+            <a href="/privacy" target="_blank" rel="noreferrer" className="underline">
+              Privacy
+            </a>
+            {' · '}
+            <a href="/terms" target="_blank" rel="noreferrer" className="underline">
+              Terms
+            </a>
+            <br />© 2026 James Moyosore. All rights reserved.
+          </p>
         </div>
       </aside>
     </>
