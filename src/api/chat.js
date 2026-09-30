@@ -2,7 +2,7 @@
 //
 // In dev, requests go to /api/* and Vite proxies them to http://127.0.0.1:8000
 // (see vite.config.js). In production, set VITE_API_BASE_URL to the deployed
-// backend URL, e.g. https://mobot-api.onrender.com
+// backend URL, e.g. https://tourfinderapppython.onrender.com
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
