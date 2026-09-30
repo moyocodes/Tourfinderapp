@@ -3,32 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0A0718" />
+    <link rel="canonical" href="https://tourfinderapp.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta
       name="description"
-      content="TourFinderApp — a conversational guide to food, landmarks, transport, safety and places to stay, anywhere in the world."
+      content="TourFinderApp is an AI travel guide you can chat with. Get local food, landmarks, transport, safety tips and places to stay for any destination in the world."
     />
-    <meta property="og:title" content="TourFinderApp" />
+    <meta property="og:site_name" content="TourFinderApp" />
+    <meta property="og:title" content="TourFinderApp — Your conversational guide to the world" />
     <meta
       property="og:description"
-      content="A conversational guide to food, landmarks, transport, safety and places to stay — anywhere in the world."
+      content="Ask about food, landmarks, transport, safety and places to stay — anywhere in the world."
     />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="TourFinderApp" />
+    <meta property="og:url" content="https://tourfinderapp.com/" />
+    <meta property="og:image" content="https://tourfinderapp.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TourFinderApp logo and tagline" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TourFinderApp — Your conversational guide to the world" />
     <meta
       name="twitter:description"
-      content="A conversational guide to food, landmarks, transport, safety and places to stay — anywhere in the world."
+      content="Ask about food, landmarks, transport, safety and places to stay — anywhere in the world."
     />
+    <meta name="twitter:image" content="https://tourfinderapp.com/og-image.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "TourFinderApp",
+        "url": "https://tourfinderapp.com/",
+        "description": "A conversational travel guide for food, landmarks, transport, safety and places to stay, anywhere in the world.",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
     />
-    <title>TourFinderApp</title>
+    <title>TourFinderApp — AI Travel Guide for Food, Landmarks & Safety</title>
   </head>
   <body>
+    <noscript>TourFinderApp is a conversational travel guide for food, landmarks, transport, safety and places to stay anywhere in the world. Please enable JavaScript to use it.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
