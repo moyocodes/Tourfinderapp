@@ -125,8 +125,14 @@ export default function App() {
   }
 
   async function submit(text) {
-    const trimmed = text.trim()
+    let trimmed = text.trim()
     if (!trimmed || loading) return
+
+    // Typing "2" picks the second choice offered in the last reply.
+    const lastOptions = messages[messages.length - 1]?.options
+    if (/^[1-9]$/.test(trimmed) && lastOptions?.[Number(trimmed) - 1]) {
+      trimmed = lastOptions[Number(trimmed) - 1]
+    }
 
     setError(null)
     setInput('')

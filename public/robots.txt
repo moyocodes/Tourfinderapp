@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tourfinderapp.com/sitemap.xml
+Sitemap: https://tourfinder.app/sitemap.xml
