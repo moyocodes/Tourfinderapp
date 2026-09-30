@@ -151,6 +151,7 @@ export default function App() {
           sources: res.sources ?? [],
           places: res.places ?? [],
           options: res.options ?? [],
+          images: res.images ?? [],
           intent: res.intent ?? null,
           answeredBy: res.answered_by ?? 'claude',
         },
@@ -553,6 +554,8 @@ function Message({ msg, onPick }) {
         </div>
       </div>
 
+      {msg.images?.length > 0 && <ImageGallery images={msg.images} />}
+
       {msg.places?.length > 0 && <PlaceRail places={msg.places} />}
 
       {onPick && msg.options?.length > 0 && (
@@ -601,6 +604,42 @@ function Message({ msg, onPick }) {
  * Places break out of the prose column into a horizontal rail — results are
  * browsed, not read in sequence, so they get scanning affordance.
  */
+/** Photos from Wikimedia Commons. Each links to its Commons page, which carries the credit and licence. */
+function ImageGallery({ images }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label>Photos</Label>
+      <div className="thin-scroll flex snap-x gap-2 overflow-x-auto pb-1">
+        {images.map((img) => (
+          <a
+            key={img.thumb_url}
+            href={img.page_url}
+            target="_blank"
+            rel="noreferrer noopener"
+            title={`${img.title}${img.license ? ` · ${img.license}` : ''} — Wikimedia Commons`}
+            className="glass relative h-36 w-56 shrink-0 snap-start overflow-hidden"
+            style={{ borderRadius: 'var(--radius)' }}
+          >
+            <img
+              src={img.thumb_url}
+              alt={img.title}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              className="h-full w-full object-cover"
+            />
+            <span
+              className="absolute right-0 bottom-0 left-0 truncate px-2 py-0.5 text-[9.5px]"
+              style={{ background: 'rgba(0,0,0,0.55)', color: '#fff' }}
+            >
+              {img.license ?? 'Wikimedia Commons'}
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function PlaceRail({ places }) {
   return (
     <div className="flex flex-col gap-2">
