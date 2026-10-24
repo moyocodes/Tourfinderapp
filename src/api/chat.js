@@ -1,10 +1,11 @@
 // Client for the World Tourism Chatbot backend.
 //
-// In dev, requests go to /api/* and Vite proxies them to http://127.0.0.1:8000
-// (see vite.config.js). In production, set VITE_API_BASE_URL to the deployed
-// backend URL, e.g. https://tourfinderapppython.onrender.com
+// In dev, requests always go to /api/* and Vite proxies them to
+// VITE_API_BASE_URL (or http://127.0.0.1:8000 if unset) — same-origin, so the
+// backend's CORS list never has to include localhost. In production, set
+// VITE_API_BASE_URL to the deployed backend, e.g. https://tourfinderapppython.onrender.com
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL ?? '/api')
 
 /**
  * The backend returns photo URLs as bare paths ("/places/photo?name=..."), which

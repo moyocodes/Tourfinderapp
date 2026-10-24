@@ -26,7 +26,8 @@ function primaryType(types) {
   return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
-export default function PlaceCard({ place }) {
+/** `onHover(place | null)` lets the globe fly to whichever card is pointed at or focused. */
+export default function PlaceCard({ place, onHover }) {
   const price = priceLabel(place.price_level)
   const type = primaryType(place.types)
   const photo = resolveAssetUrl(place.photo_url)
@@ -36,17 +37,21 @@ export default function PlaceCard({ place }) {
       href={place.google_maps_url || place.maps_uri || undefined}
       target="_blank"
       rel="noreferrer"
-      className="glass group flex w-[248px] shrink-0 snap-start flex-col overflow-hidden no-underline transition-transform duration-200 hover:-translate-y-1"
+      onMouseEnter={() => onHover?.(place)}
+      onFocus={() => onHover?.(place)}
+      onBlur={() => onHover?.(null)}
+      className="glass group flex w-[248px] shrink-0 snap-start flex-col overflow-hidden no-underline transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-glow"
       style={{ borderRadius: 'var(--radius)' }}
     >
       {photo ? (
-        <img
-          src={photo}
-          alt=""
-          loading="lazy"
-          className="h-32 w-full object-cover"
-          style={{ background: 'var(--ground-2)' }}
-        />
+        <div className="h-32 w-full overflow-hidden bg-ground-2">
+          <img
+            src={photo}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
       ) : (
         /* No photo: a quiet cartographic placeholder rather than a grey box. */
         <div
