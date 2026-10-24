@@ -102,3 +102,21 @@ export function requestBrowserLocation() {
     )
   })
 }
+
+/**
+ * Rate a reply. The backend joins the rating to its route log on
+ * (session_id, turn_index), so it shows up per route and intent in GET /metrics,
+ * and thumbs-down answers are kept out of fine-tuning data.
+ * Never throws — a lost rating must not break the chat.
+ */
+export async function sendFeedback(feedback) {
+  try {
+    await fetch(`${BASE}/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feedback),
+    })
+  } catch {
+    // Offline or backend asleep — the rating still shows locally.
+  }
+}

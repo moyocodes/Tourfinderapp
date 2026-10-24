@@ -5,6 +5,7 @@ import {
   requestBrowserLocation,
   reverseGeocode,
   sendChat,
+  sendFeedback,
 } from './api/chat'
 import { useTheme } from './useTheme'
 import { useWallpaper } from './useWallpaper'
@@ -141,7 +142,9 @@ export default function App() {
     setLoading(true)
 
     try {
+      const started = performance.now()
       const res = await sendChat(trimmed, sessionId, location)
+      const latencyMs = Math.round(performance.now() - started)
       setSessionId(res.session_id)
       const withReply = [
         ...withUser,
@@ -154,6 +157,8 @@ export default function App() {
           images: res.images ?? [],
           intent: res.intent ?? null,
           answeredBy: res.answered_by ?? 'claude',
+          latencyMs,
+          rating: null,
         },
       ]
       setMessages(withReply)
@@ -165,6 +170,23 @@ export default function App() {
     } finally {
       setLoading(false)
     }
+  }
+
+  function rate(index, rating) {
+    const msg = messages[index]
+    if (!msg || !sessionId || msg.rating === rating) return
+    const updated = messages.map((m, i) => (i === index ? { ...m, rating } : m))
+    setMessages(updated)
+    sessions.upsert(sessionId, updated)
+    sendFeedback({
+      session_id: sessionId,
+      // The backend counts turns by user messages, starting at 0.
+      turn_index: messages.slice(0, index).filter((m) => m.role === 'user').length - 1,
+      rating,
+      intent: msg.intent ?? null,
+      answered_by: msg.answeredBy ?? null,
+      latency_ms: msg.latencyMs ?? null,
+    })
   }
 
   function newChat() {
@@ -237,6 +259,7 @@ export default function App() {
                     // Tap choices only make sense on the newest reply, and only
                     // while we're not already waiting on an answer.
                     onPick={i === messages.length - 1 && !loading ? submit : null}
+                    onRate={sessionId ? (rating) => rate(i, rating) : null}
                   />
                 ))}
 
@@ -489,7 +512,7 @@ function Pin() {
   )
 }
 
-function Message({ msg, onPick }) {
+function Message({ msg, onPick, onRate }) {
   if (msg.role === 'user') {
     return (
       <div className="flex justify-end">
@@ -595,6 +618,50 @@ function Message({ msg, onPick }) {
             )}
           </div>
         </div>
+      )}
+
+      {onRate && <Feedback rating={msg.rating} onRate={onRate} />}
+    </div>
+  )
+}
+
+const THUMB_UP =
+  'M5 7v7H2.5V7H5Zm0 0 3-5.5c1 0 1.8.8 1.6 1.8L9.2 6H13a1.5 1.5 0 0 1 1.5 1.8l-1 5A1.5 1.5 0 0 1 12 14H5'
+const THUMB_DOWN =
+  'M5 9V2H2.5v7H5Zm0 0 3 5.5c1 0 1.8-.8 1.6-1.8L9.2 10H13a1.5 1.5 0 0 0 1.5-1.8l-1-5A1.5 1.5 0 0 0 12 2H5'
+
+/** Thumbs up/down under a reply. Ratings feed the backend's quality metrics. */
+function Feedback({ rating, onRate }) {
+  return (
+    <div className="flex items-center gap-1">
+      {[
+        ['up', 'Helpful', THUMB_UP],
+        ['down', 'Not helpful', THUMB_DOWN],
+      ].map(([value, label, path]) => {
+        const active = rating === value
+        return (
+          <button
+            key={value}
+            onClick={() => onRate(value)}
+            aria-label={label}
+            aria-pressed={active}
+            title={label}
+            className="rounded-full p-1.5 transition-colors duration-200"
+            style={{
+              color: active ? 'var(--accent)' : 'var(--ink-faint)',
+              background: active ? 'var(--accent-quiet)' : 'transparent',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d={path} stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )
+      })}
+      {rating && (
+        <span className="text-[11px]" style={{ color: 'var(--ink-faint)' }}>
+          Thanks for the feedback
+        </span>
       )}
     </div>
   )
