@@ -12,7 +12,8 @@ const Recognition =
 /** Markdown → something pleasant to hear: no symbols, links read as their text. */
 export function toSpeech(md) {
   return md
-    .replace(/```[\s\S]*?```/g, '')
+    // Copy blocks hold phrases and addresses worth hearing, so keep their text.
+    .replace(/```[^\n]*\n?([\s\S]*?)```/g, '$1')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/https?:\/\/\S+/g, '')

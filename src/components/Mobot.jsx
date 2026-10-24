@@ -12,6 +12,10 @@ import { useThemeColors } from '../useThemeColors'
  *   happy — eyes wide, little bounce
  * Bump `hop` (any changing number) to make it jump, e.g. when the user picks
  * something. Its eyes and antenna glow in the visitor's accent colour.
+ *
+ * It also reacts to the visitor: hovering makes it wave with wide eyes, a tap
+ * makes it spin-hop, a quick second tap makes it giggle, and three fast taps
+ * leave it dizzy.
  */
 
 const REDUCED =
@@ -54,6 +58,25 @@ function Bot({ mood, hop, colors }) {
   const pointer = usePointer()
   const hopAt = useRef(-10)
   const blink = useRef({ next: 2, t: -1 })
+  const hovered = useRef(false)
+  const poke = useRef({ at: -10, kind: null, recent: [] })
+
+  function onPoke(e) {
+    e.stopPropagation()
+    const now = performance.now() / 1000
+    const p = poke.current
+    p.recent = [...p.recent.filter((at) => now - at < 1.2), now]
+    p.kind = p.recent.length >= 3 ? 'dizzy' : p.recent.length === 2 ? 'giggle' : 'hop'
+    if (p.kind === 'dizzy') p.recent = []
+    if (p.kind === 'hop') hopAt.current = now
+    p.at = now
+  }
+
+  function setHover(on) {
+    hovered.current = on
+    document.body.style.cursor = on ? 'pointer' : ''
+  }
+  useEffect(() => () => (document.body.style.cursor = ''), [])
 
   // Shell and visor materials are shared between meshes and follow the theme.
   const mats = useMemo(
@@ -82,17 +105,33 @@ function Bot({ mood, hop, colors }) {
     const now = performance.now() / 1000
     const k = 1 - Math.exp(-dt * 6)
 
+    // A poke reaction briefly overrides the mood it was given.
+    const p = poke.current
+    const sincePoke = now - p.at
+    const react = p.kind === 'dizzy' ? (sincePoke < 1.6 ? 'dizzy' : null) : sincePoke < 0.9 ? p.kind : null
+    const fade = 1 - sincePoke / (react === 'dizzy' ? 1.6 : 0.9)
+
     // Float, plus a hop that decays over half a second.
     const sinceHop = now - hopAt.current
     const jump = sinceHop < 0.5 ? Math.sin((sinceHop / 0.5) * Math.PI) * 0.35 : 0
-    const bounce = mood === 'happy' && !REDUCED ? Math.abs(Math.sin(t * 4)) * 0.06 : 0
+    const happy = mood === 'happy' || react === 'giggle'
+    const bounce = happy && !REDUCED ? Math.abs(Math.sin(t * (react === 'giggle' ? 14 : 4))) * 0.06 : 0
     root.current.position.y = (REDUCED ? 0 : Math.sin(t * 1.6) * 0.06) + jump + bounce
-    root.current.rotation.y = sinceHop < 0.5 ? (sinceHop / 0.5) * Math.PI * 2 : 0
+    const spin = REDUCED
+      ? 0
+      : react === 'dizzy'
+        ? (1 - fade * fade) * Math.PI * 4
+        : sinceHop < 0.5
+          ? (sinceHop / 0.5) * Math.PI * 2
+          : 0
+    root.current.rotation.y = spin
+    root.current.rotation.z = react === 'giggle' && !REDUCED ? Math.sin(t * 30) * 0.08 * fade : 0
 
-    // Head follows the pointer; "think" adds a curious tilt.
-    const tiltZ = mood === 'think' ? 0.22 : 0
+    // Head follows the pointer; "think" adds a curious tilt, dizzy a wobble.
+    const tiltZ = react === 'dizzy' ? Math.sin(t * 9) * 0.35 * fade : mood === 'think' ? 0.22 : 0
+    const lean = hovered.current ? -0.12 : 0
     head.current.rotation.y += (pointer.current.x * 0.5 - head.current.rotation.y) * k
-    head.current.rotation.x += (-pointer.current.y * 0.3 - head.current.rotation.x) * k
+    head.current.rotation.x += (-pointer.current.y * 0.3 + lean - head.current.rotation.x) * k
     head.current.rotation.z += (tiltZ - head.current.rotation.z) * k
 
     // Blink every few seconds; mood sets the resting eye shape.
@@ -102,23 +141,33 @@ function Bot({ mood, hop, colors }) {
       b.next = t + 2.5 + Math.random() * 2.5
     }
     const blinking = t - b.t < 0.14
-    const open = mood === 'think' ? 0.45 : mood === 'happy' ? 1.25 : 1
+    const open =
+      react === 'giggle' ? 0.3 : react === 'dizzy' ? 0.5 : hovered.current ? 1.3 : mood === 'think' ? 0.45 : happy ? 1.25 : 1
     for (const e of eyes) {
       const goal = blinking ? 0.08 : open
       e.current.scale.y += (goal - e.current.scale.y) * (blinking ? 1 : k)
     }
 
-    // Waving arm.
-    const wave = mood === 'wave' && !REDUCED
+    // Waving arm — also a hello whenever the pointer is on it.
+    const wave = (mood === 'wave' || hovered.current) && !react && !REDUCED
     hand.current.position.y += ((wave ? 0.15 : -0.55) - hand.current.position.y) * k
     hand.current.rotation.z = wave ? Math.sin(t * 9) * 0.5 : 0
     otherHand.current.position.y = -0.55 + (REDUCED ? 0 : Math.sin(t * 1.6 + 1) * 0.03)
 
-    bulb.current.scale.setScalar(1 + Math.sin(t * 3) * 0.12)
+    const excited = hovered.current || react
+    bulb.current.scale.setScalar((excited ? 1.35 : 1) + Math.sin(t * (excited ? 10 : 3)) * 0.12)
   })
 
   return (
-    <group ref={root}>
+    <group
+      ref={root}
+      onClick={onPoke}
+      onPointerOver={(e) => {
+        e.stopPropagation()
+        setHover(true)
+      }}
+      onPointerOut={() => setHover(false)}
+    >
       <group ref={head} position={[0, 0.25, 0]}>
         {/* Head shell */}
         <mesh material={mats.shell} scale={[1, 0.82, 0.88]}>

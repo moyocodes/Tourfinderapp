@@ -17,7 +17,9 @@ import { usePrefs } from './usePrefs'
 import { centroid, coordsOf } from './lib/geo'
 import Callout from './components/Callout'
 import GlobeStage from './components/GlobeStage'
+import CopyButton from './components/CopyButton'
 import Markdown from './components/Markdown'
+import { toPlainText } from './lib/plainText'
 import PlaceCard from './components/PlaceCard'
 import Sidebar, { Icon, MobileToolbar } from './components/Sidebar'
 import Onboarding from './components/Onboarding'
@@ -935,6 +937,7 @@ function Message({ msg, onPick, onRate, onHoverPlace, onSpeak, speaking }) {
 
       <div className="flex items-center gap-1">
         {onSpeak && <SpeakButton speaking={speaking} onClick={onSpeak} />}
+        <CopyButton text={toPlainText(msg.text)} label="Copy reply" />
         {onRate && <Feedback rating={msg.rating} onRate={onRate} />}
       </div>
     </motion.div>
